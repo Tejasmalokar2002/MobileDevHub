@@ -7,6 +7,9 @@ import com.example.MobileDevHub.mapper.ShipmentMapper;
 import com.example.MobileDevHub.repository.OrderRepository;
 import com.example.MobileDevHub.repository.ShipmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,14 @@ public class ShipmentService {
 
     @Autowired
     private ShipmentRepository shipmentRepository;
+
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
 
     @Autowired
     private ShipmentMapper shipmentMapper;
@@ -40,6 +51,7 @@ public class ShipmentService {
         Shipment shipment = shipmentMapper.toEntity(shipmentDTO);
         shipment.setOrder(order);
 
+        sendBookingConfirmationEmail(shipment);
         return shipmentRepository.save(shipment);
     }
 
@@ -56,4 +68,30 @@ public class ShipmentService {
     public void deleteById(Long id) {
         shipmentRepository.deleteById(id);
     }
+
+
+    private void sendBookingConfirmationEmail(Shipment shipment) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo("tejasmalokar707@gmail.com"); // Change to actual recipient's email
+        message.setSubject("Shipment Confirmation - " + shipment.getShipmentNumber());
+        message.setText("Dear Customer,\n\n" +
+                "Your shipment has been successfully created with the following details:\n" +
+                "Shipment Number: " + shipment.getShipmentNumber() + "\n" +
+                "Order ID: " + shipment.getOrder().getId() + "\n" +
+                "Shipment Date: " + shipment.getShipmentDate() + "\n" +
+                "Delivery Date: " + shipment.getDeliveryDate() + "\n" +
+                "Status: " + shipment.getStatus() + "\n\n" +
+                "Thank you for using our service!\n\n" +
+                "Best regards,\n" +
+                "The Team");
+
+        try {
+            mailSender.send(message);
+            System.out.println("Email sent successfully!");
+        } catch (Exception e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+    }
+
 }
