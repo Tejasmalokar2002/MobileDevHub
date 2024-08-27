@@ -73,7 +73,7 @@ public class ShipmentService {
     private void sendBookingConfirmationEmail(Shipment shipment) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
-        message.setTo("tejasmalokar707@gmail.com"); // Change to actual recipient's email
+        message.setTo("usdreams14@gmail.com"); // Change to actual recipient's email
         message.setSubject("Shipment Confirmation - " + shipment.getShipmentNumber());
         message.setText("Dear Customer,\n\n" +
                 "Your shipment has been successfully created with the following details:\n" +
@@ -86,11 +86,15 @@ public class ShipmentService {
                 "Best regards,\n" +
                 "The Team");
 
+        System.out.println("Sending email to: " + message.getTo());
+        System.out.println("Email subject: " + message.getSubject());
+
         try {
             mailSender.send(message);
             System.out.println("Email sent successfully!");
         } catch (Exception e) {
             System.err.println("Error sending email: " + e.getMessage());
+            System.out.println("Error details: " + e.getMessage());
         }
     }
 
